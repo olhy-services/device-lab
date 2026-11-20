@@ -1,0 +1,14 @@
+diff --git a/dist/server/mockttp-server.js b/dist/server/mockttp-server.js
+index ef0626f24d219cf2ba57d02467ed306f4f7fd3c4..552003f35a8423cc91f188070c948d429a0e10b7 100644
+--- a/dist/server/mockttp-server.js
++++ b/dist/server/mockttp-server.js
+@@ -98,7 +98,8 @@ class MockttpServer extends mockttp_1.AbstractMockttp {
+                 });
+             if (this.debug)
+                 console.log(`Starting mock server on port ${port}`);
+-            this.server.listen(port);
++            // device-lab: só aceita conexões locais (o aparelho chega via adb reverse).
++            this.server.listen(port, '127.0.0.1');
+         });
+         // Handle & report client request errors
+         this.server.on('clientError', this.handleInvalidHttp1Request.bind(this));

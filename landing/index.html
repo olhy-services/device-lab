@@ -1,0 +1,414 @@
+<title>device-lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400&family=JetBrains+Mono:wght@400&family=Saira+Condensed:wght@400&display=swap">
+<style>
+/* Layout: preto absoluto, só tipografia e a "fotografia" (o diagrama do caminho do dado). Coluna máx. 1280px,
+   bandas separadas por 120px, cabeçalhos em caixa alta espaçada, peso 400 em tudo. Sem modo claro. */
+:root {
+  color-scheme: dark;
+  --canvas: #000000;
+  --surface-soft: #0d0d0d;
+  --surface-card: #141414;
+  --surface-elevated: #1f1f1f;
+  --ink: #ffffff;
+  --body: #cccccc;
+  --body-strong: #e6e6e6;
+  --muted: #999999;
+  --muted-soft: #666666;
+  --hairline: #262626;
+  --hairline-strong: #3a3a3a;
+  --link: #c3d9f3;
+  --warning: #d4a017;
+  --success: #5fa657;
+
+  --f-display: 'Saira Condensed', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --f-text: 'EB Garamond', Garamond, 'Times New Roman', serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', monospace;
+
+  --s-xs: 8px; --s-sm: 12px; --s-md: 16px; --s-lg: 24px; --s-xl: 40px; --s-xxl: 64px; --s-section: 120px;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--canvas); color: var(--body); font: 400 17px/1.55 var(--f-text);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-font-smoothing: antialiased;
+}
+b, strong { font-weight: 400; color: var(--body-strong); }
+a { color: var(--link); text-underline-offset: 3px; }
+:focus-visible { outline: 1px solid var(--ink); outline-offset: 4px; }
+code { font-family: var(--f-mono); font-size: 0.78em; color: var(--body-strong); }
+
+.wrap { max-width: 1280px; margin: 0 auto; padding-block: 0 var(--s-xxl); display: grid; gap: var(--s-section); }
+
+/* ---------- tipografia */
+.display-xl, .display-lg, .title-md {
+  font-family: var(--f-display); font-weight: 400; color: var(--ink); text-transform: uppercase; margin: 0; text-wrap: balance;
+}
+.display-xl { font-size: clamp(32px, 5.6vw, 64px); line-height: 1.1; letter-spacing: clamp(2px, 0.35vw, 4px); }
+.display-lg { font-size: clamp(28px, 4vw, 48px); line-height: 1.15; letter-spacing: clamp(1.5px, 0.25vw, 3px); }
+.title-md { font-size: 20px; line-height: 1.3; letter-spacing: 1px; }
+.caption { font-family: var(--f-mono); font-size: 11px; line-height: 1.4; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+
+/* ---------- topo */
+.top { height: 56px; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--s-md); }
+.top nav { display: flex; gap: var(--s-lg); }
+.top nav:last-child { justify-content: flex-end; }
+.top a { font-family: var(--f-mono); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink); text-decoration: none; }
+.wordmark { font-family: var(--f-display); font-size: 14px; letter-spacing: 6px; text-transform: uppercase; color: var(--ink); }
+
+/* ---------- botão: pílula transparente com contorno */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 14px 32px;
+  border: 1px solid var(--ink); border-radius: 9999px; background: transparent; color: var(--ink);
+  font: 400 14px/1 var(--f-mono); letter-spacing: 2.5px; text-transform: uppercase; text-decoration: none; cursor: pointer; white-space: nowrap;
+}
+.btn:active { background: var(--ink); color: var(--canvas); }
+
+/* ---------- hero */
+.hero { display: grid; gap: var(--s-xxl); padding-top: var(--s-xxl); }
+.hero-text { display: grid; justify-items: center; text-align: center; gap: var(--s-lg); }
+.lede { margin: 0; max-width: 36em; font-size: 20px; color: var(--body-strong); }
+
+/* diagrama do caminho do dado */
+.path { margin: 0; border: 1px solid var(--hairline); background: var(--surface-soft); }
+.path-scroll { overflow-x: auto; }
+.path svg { display: block; width: 100%; min-width: 760px; height: auto; }
+.path text { fill: var(--body); }
+.path .t-label { font-family: var(--f-display); font-size: 17px; letter-spacing: 2px; text-transform: uppercase; fill: var(--ink); }
+.path .t-mono { font-family: var(--f-mono); font-size: 12px; fill: var(--muted); }
+.path .t-small { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; fill: var(--muted); }
+.path .box { fill: var(--surface-card); stroke: var(--hairline-strong); stroke-width: 1; }
+.path .phone { fill: var(--surface-card); stroke: var(--hairline-strong); stroke-width: 1; }
+.path .screen { fill: var(--canvas); }
+.path .screen-ink { fill: var(--body); font-family: var(--f-mono); font-size: 10.5px; }
+.path .wire { stroke: var(--hairline-strong); stroke-width: 1.5; fill: none; }
+.path .wire-video { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+.path .wire-proxy { stroke: var(--muted); stroke-width: 1.5; fill: none; stroke-dasharray: 6 5; }
+.path .dot-video { fill: var(--ink); }
+.path .dot-proxy { fill: var(--muted); }
+.path .legend-video { fill: var(--ink); }
+.path .legend-proxy { fill: var(--muted); }
+.path figcaption { padding: var(--s-sm) var(--s-md) var(--s-md); border-top: 1px solid var(--hairline); font-size: 15px; color: var(--muted); }
+
+/* ---------- seções */
+section { display: grid; gap: var(--s-xl); }
+.sec-head { display: grid; gap: var(--s-sm); max-width: 44em; }
+.sec-head p { margin: 0; }
+
+/* ficha das abas */
+.sheet-head, .tab-row { display: grid; grid-template-columns: 200px minmax(0, 1fr) minmax(0, 0.9fr); gap: var(--s-sm) var(--s-xl); }
+.sheet-head { padding-bottom: var(--s-md); }
+.tabs-sheet { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--hairline-strong); }
+.tab-row { padding: var(--s-lg) 0; border-bottom: 1px solid var(--hairline); }
+.tab-name { display: grid; gap: var(--s-xs); align-content: start; }
+.tab-what { margin: 0; }
+.tab-src { margin: 0; font: 400 12px/1.8 var(--f-mono); color: var(--muted); word-break: break-word; }
+
+/* tela */
+.gestures { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--s-xl); border-top: 1px solid var(--hairline-strong); }
+.g { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: var(--s-md); padding: var(--s-lg) 0; border-bottom: 1px solid var(--hairline); align-items: baseline; }
+.g dt { color: var(--ink); }
+.g kbd { font: inherit; border: 1px solid var(--hairline-strong); padding: 2px 6px; }
+.g dd { margin: 0; }
+
+/* matriz de visibilidade */
+.table-wrap { overflow-x: auto; border-top: 1px solid var(--hairline-strong); }
+table { border-collapse: collapse; width: 100%; min-width: 720px; }
+th, td { text-align: left; padding: var(--s-lg) var(--s-lg) var(--s-lg) 0; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+th { font: 400 11px/1.4 var(--f-mono); letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding-block: var(--s-md); }
+td:first-child { font-family: var(--f-display); font-size: 20px; line-height: 1.3; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); }
+.vis { display: inline-flex; align-items: center; gap: var(--s-xs); white-space: nowrap; }
+.vis::before { content: ""; width: 6px; height: 6px; background: currentColor; }
+.vis.full { color: var(--success); }
+.vis.part { color: var(--warning); }
+.vis.none { color: var(--muted); }
+
+/* root */
+.split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-xl); }
+.split > div { background: var(--surface-card); padding: var(--s-lg); display: grid; gap: var(--s-md); align-content: start; }
+.split ul { margin: 0; padding: 0; list-style: none; display: grid; }
+.split li { padding: var(--s-sm) 0; border-top: 1px solid var(--hairline); }
+
+/* bom saber */
+.facts { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--s-xl); border-top: 1px solid var(--hairline-strong); }
+.facts li { padding: var(--s-lg) 0; border-bottom: 1px solid var(--hairline); display: grid; gap: var(--s-xs); align-content: start; }
+
+/* rodar */
+.run { justify-items: center; text-align: center; padding-block: var(--s-xxl); border-block: 1px solid var(--hairline); }
+.code {
+  width: 100%; max-width: 560px; text-align: left; margin: 0; padding: var(--s-lg); background: var(--surface-soft); border: 1px solid var(--hairline);
+  font: 400 13.5px/1.8 var(--f-mono); color: var(--body-strong); overflow-x: auto;
+}
+.code .c { color: var(--muted-soft); }
+.run p { margin: 0; color: var(--muted); max-width: 36em; }
+
+footer { display: grid; justify-items: center; gap: var(--s-lg); padding-top: var(--s-xxl); text-align: center; }
+footer p { margin: 0; font-size: 14px; color: var(--muted); }
+footer .fine { color: var(--muted-soft); }
+
+@media (prefers-reduced-motion: reduce) { .path .moving { display: none; } }
+@media (max-width: 860px) {
+  .wrap { gap: var(--s-xxl); }
+  .top { grid-template-columns: minmax(0, 1fr) auto; }
+  .top nav:first-child { display: none; }
+  .hero { padding-top: var(--s-xl); gap: var(--s-xl); }
+  .lede { font-size: 18px; }
+  .sheet-head { display: none; }
+  .tab-row { grid-template-columns: minmax(0, 1fr); }
+  .gestures, .facts, .split { grid-template-columns: minmax(0, 1fr); }
+  .g { grid-template-columns: 140px minmax(0, 1fr); }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <nav aria-label="Seções">
+      <a href="#abas">O que dá para ver</a>
+      <a href="#rede">Rede</a>
+      <a href="#root">Root</a>
+    </nav>
+    <span class="wordmark">device-lab</span>
+    <nav aria-label="Atalho"><a href="#rodar">Rodar</a></nav>
+  </header>
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-text">
+      <h1 class="display-xl" id="hero-title">O celular inteiro numa aba</h1>
+      <span class="caption">Tela · processos · rede · arquivos</span>
+      <p class="lede">
+        Espelha e controla um Android pelo navegador e abre ao lado DevTools do aparelho: CPU por núcleo,
+        temperatura, quem está conectado com quem, requisições HTTPS, logcat e o sistema de arquivos.
+        Feito para quem desenvolve e para quem testa segurança. Nada é instalado no celular.
+      </p>
+      <a class="btn" href="#rodar">Como rodar</a>
+    </div>
+
+    <figure class="path">
+      <div class="path-scroll">
+      <svg viewBox="0 0 1040 300" role="img" aria-labelledby="path-title path-desc">
+        <title id="path-title">Caminho do dado</title>
+        <desc id="path-desc">O aparelho manda vídeo e métricas pelo adb para o device-lab em 127.0.0.1:4700, que entrega ao navegador. Quando a captura está ligada, o tráfego do aparelho volta pelo adb reverse até o proxy local.</desc>
+
+        <!-- aparelho -->
+        <rect class="phone" x="24" y="34" width="150" height="232" rx="18"/>
+        <rect class="screen" x="34" y="46" width="130" height="208" rx="8"/>
+        <text class="screen-ink" x="44" y="72">scrcpy 3.3.3</text>
+        <text class="screen-ink" x="44" y="92">/data/local/tmp</text>
+        <text class="screen-ink" x="44" y="128">top · dumpsys</text>
+        <text class="screen-ink" x="44" y="148">/proc/net/tcp6</text>
+        <text class="screen-ink" x="44" y="168">logcat</text>
+        <text class="screen-ink" x="44" y="204">http_proxy →</text>
+        <text class="screen-ink" x="44" y="224">127.0.0.1:88xx</text>
+        <text class="t-small" x="24" y="290">Android 5+</text>
+
+        <!-- adb -->
+        <rect class="box" x="300" y="104" width="150" height="92"/>
+        <text class="t-label" x="320" y="138">adb</text>
+        <text class="t-mono" x="320" y="162">USB ou Wi-Fi</text>
+        <text class="t-mono" x="320" y="182">server :5037</text>
+
+        <!-- device-lab -->
+        <rect class="box" x="576" y="64" width="190" height="172"/>
+        <text class="t-label" x="596" y="98">device-lab</text>
+        <text class="t-mono" x="596" y="122">127.0.0.1:4700</text>
+        <text class="t-small" x="596" y="160">métricas 1×/s</text>
+        <text class="t-small" x="596" y="182">vídeo H.264</text>
+        <text class="t-small" x="596" y="204">proxy mockttp</text>
+
+        <!-- navegador -->
+        <rect class="box" x="866" y="64" width="150" height="172"/>
+        <text class="t-label" x="886" y="98">Navegador</text>
+        <text class="t-mono" x="886" y="122">WebCodecs</text>
+        <text class="t-small" x="886" y="160">tela + toque</text>
+        <text class="t-small" x="886" y="182">DevTools</text>
+
+        <!-- fios -->
+        <path class="wire-video" d="M174 130 H300"/>
+        <path class="wire-video" d="M450 130 H576"/>
+        <path class="wire-video" d="M766 130 H866"/>
+        <path class="wire-proxy" d="M174 214 H300"/>
+        <path class="wire-proxy" d="M450 176 H520 V214 H576"/>
+        <path class="wire" d="M866 190 H766"/>
+
+        <circle class="dot-video moving" r="3.5">
+          <animateMotion dur="2.4s" repeatCount="indefinite" path="M174 130 H866"/>
+        </circle>
+        <circle class="dot-proxy moving" r="3.5">
+          <animateMotion dur="3.2s" repeatCount="indefinite" path="M174 214 H300 M450 176 H520 V214 H576"/>
+        </circle>
+
+        <!-- legenda -->
+        <rect class="legend-video" x="300" y="250" width="16" height="1.5"/>
+        <text class="t-small" x="324" y="254">tela, toques e métricas</text>
+        <rect class="legend-proxy" x="540" y="250" width="16" height="1.5"/>
+        <text class="t-small" x="564" y="254">tráfego do app (adb reverse → proxy)</text>
+        <text class="t-small" x="886" y="290">tudo em 127.0.0.1</text>
+      </svg>
+      </div>
+      <figcaption>O servidor do espelhamento é copiado a cada sessão e só roda com a tela aberta. Ao parar a captura, o proxy sai do aparelho.</figcaption>
+    </figure>
+  </section>
+
+  <section id="abas" aria-labelledby="abas-title">
+    <div class="sec-head">
+      <h2 class="display-lg" id="abas-title">O que dá para ver, e de onde vem</h2>
+      <p>Cada aba lê direto do aparelho. A coluna da direita é a fonte, para você saber em que confiar.</p>
+    </div>
+    <div>
+      <div class="sheet-head caption" aria-hidden="true"><span>Aba</span><span>O que mostra</span><span>Fonte</span></div>
+      <ul class="tabs-sheet">
+        <li class="tab-row">
+          <div class="tab-name"><span class="title-md">Visão geral</span></div>
+          <p class="tab-what">CPU total e por núcleo, com frequência atual e máxima. RAM, RAM Boost (swap/zram), rede, bateria (corrente, tensão, saúde) e as temperaturas de CPU, GPU, bateria e superfície. Botões para liberar RAM e esfriar.</p>
+          <p class="tab-src">/proc/stat · /proc/meminfo · cpufreq/scaling_cur_freq · dumpsys thermalservice · power_supply/battery/current_now</p>
+        </li>
+        <li class="tab-row">
+          <div class="tab-name"><span class="title-md">Desempenho</span></div>
+          <p class="tab-what">Do app que está na tela: quadros por segundo, % de quadros lentos, p90 do tempo de quadro, CPU e memória.</p>
+          <p class="tab-src">dumpsys activity (topResumedActivity) · dumpsys gfxinfo · /proc/&lt;pid&gt;/stat</p>
+        </li>
+        <li class="tab-row">
+          <div class="tab-name"><span class="title-md">Processos</span><span class="caption">Novo</span></div>
+          <p class="tab-what">Todos os processos do sistema, com CPU, memória, usuário e estado. Busca, filtro só de apps e encerrar.</p>
+          <p class="tab-src">top -b -o PID,PPID,USER,%CPU,RES,S,NAME · am force-stop · kill -9</p>
+        </li>
+        <li class="tab-row">
+          <div class="tab-name"><span class="title-md">Rede</span><span class="caption">Novo</span></div>
+          <p class="tab-what">Todas as conexões abertas, com o app dono, servidor, porta e estado. E o inspetor de requisições HTTP/HTTPS: cabeçalhos, corpo, resposta, copiar como cURL.</p>
+          <p class="tab-src">/proc/net/{tcp,tcp6,udp,udp6} + pm list packages -U · proxy mockttp + CA local</p>
+        </li>
+        <li class="tab-row">
+          <div class="tab-name"><span class="title-md">Logcat</span></div>
+          <p class="tab-what">Ao vivo, por nível, com busca e “só o app na tela”. Pausar e limpar.</p>
+          <p class="tab-src">logcat -v threadtime</p>
+        </li>
+        <li class="tab-row">
+          <div class="tab-name"><span class="title-md">Apps</span></div>
+          <p class="tab-what">Lista com tamanhos. Abrir, forçar parada, apagar dados, desinstalar. Instalar APK arrastando o arquivo.</p>
+          <p class="tab-src">pm list packages · dumpsys diskstats · adb install</p>
+        </li>
+        <li class="tab-row">
+          <div class="tab-name"><span class="title-md">Arquivos</span><span class="caption">Novo</span></div>
+          <p class="tab-what">Navegar pelo sistema, ver texto e imagem, baixar, enviar, apagar. “Ler como” abre a pasta privada de apps de debug: shared_prefs, bancos SQLite, cache.</p>
+          <p class="tab-src">stat -L · run-as &lt;pacote&gt; · su -c (com root) · adb exec-out cat</p>
+        </li>
+        <li class="tab-row">
+          <div class="tab-name"><span class="title-md">Armazenamento</span></div>
+          <p class="tab-what">Uso total, por tipo e os apps que mais ocupam.</p>
+          <p class="tab-src">dumpsys diskstats</p>
+        </li>
+        <li class="tab-row">
+          <div class="tab-name"><span class="title-md">Ferramentas</span></div>
+          <p class="tab-what">Abrir link ou deep link, tema escuro, tamanho da fonte, mostrar toques, limites de layout, giro, tela sempre ligada. E tirar água do alto-falante com um tom de 165 Hz.</p>
+          <p class="tab-src">am start -a VIEW · settings put · cmd media_session volume</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="tela-title">
+    <div class="sec-head">
+      <h2 class="display-lg" id="tela-title">A tela responde como o aparelho</h2>
+      <p>Vídeo H.264 decodificado no navegador, na proporção real. Gira junto com o celular.</p>
+    </div>
+    <dl class="gestures">
+      <div class="g"><dt class="caption">Clique / arrastar</dt><dd>Toque e gesto. Multitoque em tela sensível ao toque.</dd></div>
+      <div class="g"><dt class="caption">Roda do mouse</dt><dd>Rola a lista ou a página.</dd></div>
+      <div class="g"><dt class="caption">Botão direito</dt><dd>Voltar. O botão do meio é Início.</dd></div>
+      <div class="g"><dt class="caption">Teclado</dt><dd>Digita no campo em foco, com acento.</dd></div>
+      <div class="g"><dt class="caption"><kbd>Ctrl</kbd> <kbd>V</kbd></dt><dd>Cola o texto daqui no aparelho; o que você copia lá vem para cá.</dd></div>
+      <div class="g"><dt class="caption">Captura / gravar</dt><dd>PNG em resolução cheia e vídeo WebM do espelho.</dd></div>
+    </dl>
+  </section>
+
+  <section id="rede" aria-labelledby="rede-title">
+    <div class="sec-head">
+      <h2 class="display-lg" id="rede-title">O que aparece no tráfego</h2>
+      <p>Destino de toda conexão aparece sempre. O conteúdo depende de o app aceitar a CA do device-lab.</p>
+    </div>
+    <div class="table-wrap" role="region" aria-label="Visibilidade do tráfego por tipo de app" tabindex="0">
+      <table>
+        <thead><tr><th scope="col">App</th><th scope="col">Conteúdo (URL, cabeçalhos, corpo)</th><th scope="col">Como</th></tr></thead>
+        <tbody>
+          <tr><td>Chrome e navegadores</td><td><span class="vis full caption">Tudo</span></td><td>Instale a CA em Configurações › Segurança › Instalar certificado. Ela já vai para <code>Download/device-lab-ca.crt</code>.</td></tr>
+          <tr><td>Seu app, build de debug</td><td><span class="vis full caption">Tudo</span></td><td><code>&lt;debug-overrides&gt;</code> com <code>certificates src="user"</code> no <code>network_security_config.xml</code>.</td></tr>
+          <tr><td>App de terceiros</td><td><span class="vis part caption">Só com root ou Frida</span></td><td>Desde o Android 7 apps ignoram CA de usuário. Com root, a CA vai para o repositório do sistema; com pinning, desligue com Frida/objection.</td></tr>
+          <tr><td>WhatsApp, QUIC, protocolo próprio</td><td><span class="vis none caption">Só o destino</span></td><td>Não usam o proxy do sistema. Aparecem em Conexões: app, servidor, porta e estado.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="root" aria-labelledby="root-title">
+    <div class="sec-head">
+      <h2 class="display-lg" id="root-title">Sem root funciona. Com root, abre tudo.</h2>
+      <p>O device-lab detecta o <code>su</code> sozinho e passa a usar quando existe.</p>
+    </div>
+    <div class="split">
+      <div>
+        <h3 class="title-md">Sem root</h3>
+        <ul>
+          <li>Lê <code>/sdcard</code>, <code>/system</code>, <code>/vendor</code> e <code>/proc</code>.</li>
+          <li>Pasta privada só de apps de debug, via <code>run-as</code>.</li>
+          <li>Encerra apps inteiros; <code>kill -9</code> só em processos do adb.</li>
+          <li>Conexões e processos de todos os apps, sem exceção.</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="title-md">Com root</h3>
+        <ul>
+          <li><code>/data</code> inteiro: bancos, tokens e preferências de qualquer app.</li>
+          <li>Encerra qualquer processo do sistema.</li>
+          <li>Envia arquivos para pastas protegidas.</li>
+          <li>Abre caminho para a CA no repositório do sistema.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="limites" aria-labelledby="limites-title">
+    <div class="sec-head">
+      <h2 class="display-lg" id="limites-title">Bom saber antes</h2>
+    </div>
+    <ul class="facts">
+      <li><span class="title-md">Só este computador</span><span>O servidor e o proxy escutam em <code>127.0.0.1</code>, recusam Host estranho e só aceitam comandos da própria página.</span></li>
+      <li><span class="title-md">Se cair capturando</span><span>O celular ficaria com um proxy que não existe. O device-lab tira sozinho ao abrir de novo, ou rode <code>pnpm start reset &lt;serial&gt;</code>.</span></li>
+      <li><span class="title-md">Girar trava a rotação</span><span>O botão usa <code>wm user-rotation lock</code>. Para voltar ao giro automático, ligue em Ferramentas.</span></li>
+      <li><span class="title-md">Esfriar tem desfazer</span><span>Encerra apps em segundo plano, liga a economia de bateria e baixa o brilho. O estado anterior fica salvo no aparelho.</span></li>
+      <li><span class="title-md">Quadros/s</span><span>Vêm do renderizador do Android: Views, Compose e React Native. Flutter, jogos e SurfaceView aparecem como 0.</span></li>
+      <li><span class="title-md">Tela parada não manda quadro</span><span>É o encoder economizando. O espelho atualiza quando algo muda.</span></li>
+    </ul>
+  </section>
+
+  <section class="run" id="rodar" aria-labelledby="rodar-title">
+    <h2 class="display-lg" id="rodar-title">Rodar</h2>
+    <span class="caption">Node 22+ · pnpm · adb</span>
+    <pre class="code" id="install-cmd">cd device-lab
+pnpm install
+pnpm dev   <span class="c"># http://127.0.0.1:4700</span></pre>
+    <button type="button" class="btn" id="copy-btn">Copiar comando</button>
+    <p>Celular com Depuração USB, por cabo ou Wi-Fi.</p>
+  </section>
+
+  <footer>
+    <p>Irmão do <a href="https://claude.ai/artifact/QQkQ6sULFN5daaMj43uCph">gps-sim</a>: o aparelho andando por uma rota.</p>
+    <p class="fine">Código aberto sob licença MIT. Mantido pela Olhy, sem dependência da Olhy.</p>
+    <span class="wordmark">device-lab</span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const btn = document.getElementById('copy-btn');
+  const pre = document.getElementById('install-cmd');
+  btn.addEventListener('click', () => {
+    const text = 'cd device-lab\npnpm install\npnpm dev';
+    const done = () => { btn.textContent = 'Copiado'; setTimeout(() => (btn.textContent = 'Copiar comando'), 1500); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+    try { navigator.clipboard.writeText(text).then(done, fallback); } catch { fallback(); }
+  });
+})();
+</script>
